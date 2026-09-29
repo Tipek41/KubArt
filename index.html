@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <nav class="topbar"><div class="logo">Canvas Studio <span>Air</span></div><div class="version">v2 · Hassas Baskı</div></nav>
+  <nav class="topbar"><div class="logo">Canvas Studio <span>Air</span></div><div style="display:flex;align-items:center;gap:10px"><button id="langToggle" type="button" aria-label="Switch language" style="border:1px solid #d9d9de;background:#fff;border-radius:18px;padding:7px 11px;color:#1d1d1f;font-size:12px;font-weight:700;cursor:pointer">EN</button><div class="version" id="versionLabel">v2 · Hassas Baskı</div></div></nav>
   <header class="hero"><p class="eyebrow">Ölçü kontrollü A4 şablon</p><h1>Tuvaline tam uyan<br><span class="tone">hatasız bir çıktı.</span></h1><p class="desc">Görsel oranını kontrol eder, gerekirse kırpar ve yazıcı kalibrasyonuna göre gerçek ölçülü A4 PDF hazırlar.</p></header>
   <main class="content"><div class="content-inner"><div class="workspace">
     <section class="card settings">
@@ -151,6 +151,97 @@
       if(!pdfReady())return;const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});pdf.setFont('helvetica','bold');pdf.setFontSize(18);pdf.text('Canvas Studio Air - Yazici Kalibrasyonu',20,20);pdf.setFont('helvetica','normal');pdf.setFontSize(10);pdf.text('Bu PDF dosyasini Actual Size / %100 ile yazdirin. Fit to Page kapali olmalidir.',20,28);pdf.text('Karenin dis kenarlarini cetvelle yatay ve dikey olarak olcun.',20,34);pdf.setLineWidth(.35);pdf.rect(30,50,100,100);for(let i=0;i<=100;i+=10){pdf.line(30+i,47,30+i,50);pdf.line(27,50+i,30,50+i)}pdf.setFontSize(11);pdf.text('100 mm',68,46);pdf.text('100 mm',15,101,{angle:90});pdf.setFontSize(9);pdf.text('Olctugunuz degerleri uygulamadaki Yatay ve Dikey alanlarina girip Olcumu kaydet secenegine basin.',20,165,{maxWidth:170});pdf.save('canvas-studio-kalibrasyon-100mm.pdf');
     }
     $('generateBtn').addEventListener('click',generate);$('pdfBtn').addEventListener('click',downloadPdf);$('printBtn').addEventListener('click',()=>{if(generate())window.print()});$('calPdfBtn').addEventListener('click',calibrationPdf);$('saveCalBtn').addEventListener('click',saveCalibration);restoreCalibration();updateRatioUI(false);
+  </script>
+
+  <script>
+  (() => {
+    const translations = {
+      en: {
+        '.hero .eyebrow':'A4 print layout with precise dimensions',
+        '.hero h1':'A perfect fit for your canvas.<br><span class="tone">Print with confidence.</span>',
+        '.hero .desc':'Check the image proportions, crop if needed, and create a true-size A4 PDF calibrated to your printer.',
+        '.settings .card-tag':'01 / SETTINGS',
+        '.settings h2':'Prepare your artwork.',
+        '.settings .card-lead':'Upload an image, set the canvas dimensions, and choose how it should fit.',
+        '#uploadLabel':'Choose an image or drop it here',
+        '.group-title:nth-of-type(1) h3':'Canvas size',
+        '.group-title:nth-of-type(1) span':'cm',
+        'label[for="frameW"]':'Width','label[for="frameH"]':'Height',
+        'label[for="fitMode"]':'Image placement',
+        '#fitMode option[value="cover"]':'Fill the canvas — crop (recommended)',
+        '#fitMode option[value="contain"]':'Fit the entire image inside the canvas',
+        '#fitMode option[value="width"]':'Set width — preserve proportions',
+        '#fitMode option[value="height"]':'Set height — preserve proportions',
+        '.range-line label[for="focusX"]':'Horizontal crop',
+        '.range-line label[for="focusY"]':'Vertical crop',
+        'label[for="marginCm"]':'Page margin (cm)',
+        '#marginCm + small':'At least 1 cm is recommended for standard printers. This is not an overlap between pages.',
+        'label[for="measuredX"]':'Measured horizontal (mm)',
+        'label[for="measuredY"]':'Measured vertical (mm)',
+        '#calPdfBtn':'Download test PDF','#saveCalBtn':'Save measurement',
+        '#generateBtn':'Create preview','#pdfBtn':'Download A4 PDF','#printBtn':'Print from browser — 100%',
+        '.preview-card .card-tag':'02 / PREVIEW',
+        '.preview-card h2':'Preview your pages.',
+        '.preview-card .card-lead':'Check the dimensions and layout before printing.',
+        '#previewBadge':'Ready',
+        '.metric-label:nth-child(1)':'PRINT SIZE',
+        '.metric:nth-child(1) .metric-label':'PRINT SIZE',
+        '.metric:nth-child(2) .metric-label':'A4 PAGES',
+        '.metric:nth-child(3) .metric-label':'LAYOUT',
+        '.stage-label span:first-child':'LIVE PREVIEW',
+        '.empty-preview strong':'Your image will appear here.',
+        '.empty-preview p':'Choose a file to get started.',
+        '.preview-bottom':'<b>Print setting:</b> Print the PDF at “Actual Size / 100%”. “Fit to Page” must be off. If unsure, print the calibration PDF first.',
+        '.footer':'<b>Canvas Studio Air v2</b> · Images are processed only in your browser.',
+        '#modalTitle':'Image and canvas proportions do not match',
+        '#modalText':'Choose how you want to place the image on the canvas.',
+        '#ratioModal [data-mode="cover"] strong':'Crop to exact dimensions — recommended',
+        '#ratioModal [data-mode="cover"] span':'Fills the canvas; the image stays undistorted and the excess is cropped.',
+        '#ratioModal [data-mode="contain"] strong':'Fit the entire image',
+        '#ratioModal [data-mode="contain"] span':'Nothing is cropped; blank space may remain on the canvas.',
+        '#ratioModal [data-mode="width"] strong':'Continue by setting the width',
+        '#ratioModal [data-mode="width"] span':'Keeps proportions; the result may exceed the canvas height.',
+        '#versionLabel':'v2 · Precision Print'
+      },
+      tr: {
+        '#versionLabel':'v2 · Hassas Baskı'
+      }
+    };
+    const button=document.getElementById('langToggle');
+    let lang=localStorage.getItem('canvasStudioLanguage')==='en'?'en':'tr';
+    const originals=new Map();
+    Object.keys(translations.en).forEach(sel=>{
+      document.querySelectorAll(sel).forEach((el,i)=>originals.set(sel+'|'+i,el.innerHTML));
+    });
+    function setLang(next){
+      lang=next; localStorage.setItem('canvasStudioLanguage',lang);
+      document.documentElement.lang=lang; button.textContent=lang==='tr'?'EN':'TR';
+      for(const [sel,english] of Object.entries(translations.en)){
+        document.querySelectorAll(sel).forEach((el,i)=>{
+          const tr=originals.get(sel+'|'+i);
+          if(lang==='en') el.innerHTML=english;
+          else if(tr!==undefined) el.innerHTML=tr;
+        });
+      }
+      document.querySelectorAll('.field label').forEach(el=>{
+        if(lang==='en' && el.htmlFor==='fileInput') el.textContent='Choose image';
+      });
+      const stage=document.querySelector('.stage-label span:last-child');
+      if(stage) stage.textContent=lang==='en'?'A4 · 21 × 29.7 cm':'A4 · 21 × 29,7 cm';
+      const uploadSub=document.querySelector('.upload-subtext');
+      if(uploadSub) uploadSub.textContent=lang==='en'?'JPG, PNG or WEBP':'JPG, PNG veya WEBP';
+      const cal=document.getElementById('calStatus');
+      if(cal) {
+        const m=cal.textContent.match(/([\d.]+)\s*[×x]\s*([\d.]+)/);
+        if(lang==='en') cal.textContent=cal.textContent.includes('Düzeltme aktif')?'Correction active: horizontal ×'+cal.textContent.match(/yatay ×([\d.]+)/)?.[1]+', vertical ×'+cal.textContent.match(/dikey ×([\d.]+)/)?.[1]:'Calibration off: 100 × 100 mm';
+        else if(cal.textContent.startsWith('Correction active')) cal.textContent='Düzeltme aktif: yatay ×1.0000, dikey ×1.0000';
+      }
+      if(window.refreshCanvasLanguage) window.refreshCanvasLanguage();
+    }
+    button.addEventListener('click',()=>setLang(lang==='tr'?'en':'tr'));
+    window.canvasStudioLang=()=>lang;
+    setLang(lang);
+  })();
   </script>
 </body>
 </html>
