@@ -164,8 +164,6 @@
         '.settings h2':'Prepare your artwork.',
         '.settings .card-lead':'Upload an image, set the canvas dimensions, and choose how it should fit.',
         '#uploadLabel':'Choose an image or drop it here',
-        '.group-title:nth-of-type(1) h3':'Canvas size',
-        '.group-title:nth-of-type(1) span':'cm',
         'label[for="frameW"]':'Width','label[for="frameH"]':'Height',
         'label[for="fitMode"]':'Image placement',
         '#fitMode option[value="cover"]':'Fill the canvas — crop (recommended)',
@@ -236,6 +234,14 @@
         if(lang==='en') cal.textContent=cal.textContent.includes('Düzeltme aktif')?'Correction active: horizontal ×'+cal.textContent.match(/yatay ×([\d.]+)/)?.[1]+', vertical ×'+cal.textContent.match(/dikey ×([\d.]+)/)?.[1]:'Calibration off: 100 × 100 mm';
         else if(cal.textContent.startsWith('Correction active')) cal.textContent='Düzeltme aktif: yatay ×1.0000, dikey ×1.0000';
       }
+      const heads=document.querySelectorAll('.settings .group-title h3');
+      const headSpans=document.querySelectorAll('.settings .group-title span');
+      const enHeads=['Canvas size','A4 print area','Printer calibration'];
+      const enSpans=['cm','Safe distance from page edges','Optional'];
+      heads.forEach((el,i)=>{if(i<enHeads.length)el.textContent=lang==='en'?enHeads[i]:['Tuval ölçüsü','A4 baskı alanı','Yazıcı kalibrasyonu'][i]});
+      headSpans.forEach((el,i)=>{if(i<enSpans.length)el.textContent=lang==='en'?enSpans[i]:['cm','Kenardan güvenli mesafe','İsteğe bağlı'][i]});
+      const labelMap={fileInput:['Choose image','Görsel seç'],frameW:['Width','Genişlik'],frameH:['Height','Yükseklik'],fitMode:['Image placement','Görsel yerleşimi'],marginCm:['Page margin (cm)','Sayfa kenar boşluğu (cm)']};
+      Object.entries(labelMap).forEach(([id,values])=>{const el=document.querySelector(`label[for="${id}"]`);if(el)el.textContent=values[lang==='en'?0:1]});
       if(window.refreshCanvasLanguage) window.refreshCanvasLanguage();
     }
     button.addEventListener('click',()=>setLang(lang==='tr'?'en':'tr'));
