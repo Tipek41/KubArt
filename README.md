@@ -1,4 +1,4 @@
-# Canvas Studio Air 🎨📐
+# KubArt 🎨📐
 
 Büyük boyutlu görselleri, standart ev veya ofis yazıcılarından çıktı alabileceğiniz şekilde çoklu **A4** sayfalarına bölen (tiled / poster printing) minimalist ve hızlı bir web aracıdır.
 
